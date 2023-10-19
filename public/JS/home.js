@@ -590,3 +590,9 @@ function getNextDir(folder) {
     // console.log(checkbox.value);
     getFilesByDir(checkbox.value);
 }
+
+function refreshFolder(folder) {
+    var checkbox = folder.previousSibling;
+    // console.log(checkbox.value);
+    getFilesByDir(checkbox.value);
+}

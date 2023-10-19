@@ -39,7 +39,7 @@
                             <span>全部文件</span>
                         </a>
                     </li>
-                    <li>
+                    <!-- <li>
                         <a onclick="getFilesByType('audio')">
                             <i class="fa fa-music p-l-15"></i>
                             <span>音频</span>
@@ -86,7 +86,7 @@
                             <i class="fa fa-trash"></i>
                             <span>回收站</span>
                         </a>
-                    </li>
+                    </li> -->
                 </ul>
             </div>
         </div>
@@ -117,9 +117,9 @@
                             class="fa fa-trash p-l-10"></i>&nbsp;删除</span>
                     <span class="border-right-solid p-r-10" onclick="downloadFile()"><i
                             class="fa fa-cloud-download p-l-10"></i>&nbsp;下载</span>
-                    <span class="border-right-solid p-r-10" onclick="alert('移动')"><i
+                    <!-- <span class="border-right-solid p-r-10" onclick="alert('移动')"><i
                             class="fa fa-arrows-alt p-l-10"></i>&nbsp;移动</span>
-                    <span onclick="alert('复制')"><i class="fa fa-copy p-l-10"></i>&nbsp;复制</span>
+                    <span onclick="alert('复制')"><i class="fa fa-copy p-l-10"></i>&nbsp;复制</span> -->
                 </div>
                 <div class="search">
                     <input class="search-input p-l-10" placeholder="文件或文件夹搜索">
@@ -337,19 +337,19 @@
             <li data-action="download"><a href="javascript:void(0);" onclick="downloadFile()">
                 <i class="fa fa-cloud-download p-r-25 p-l-15" style="width: 20px; height: 20px;"></i>
                 <span class="p-r-15">下载</span></a></li>
-            <li data-action="copy"><a href="javascript:void(0);" onclick="return false;">
+            <!-- <li data-action="copy"><a href="javascript:void(0);" onclick="return false;">
                 <i class="fa fa-copy p-r-25 p-l-15" style="width: 20px; height: 20px;"></i>
-                <span class="p-r-15">复制</span></a></li>
+                <span class="p-r-15">复制</span></a></li> -->
             <li data-action="delete"><a href="javascript:void(0);" onclick="deleteFileOrFolder()">
                 <i class="fa fa-trash p-r-25 p-l-15" style="width: 20px; height: 20px;"></i>
                 <span class="p-r-15">删除</span></a></li>
-            <li data-action="move"><a href="javascript:void(0);" onclick="return false;">
+            <!-- <li data-action="move"><a href="javascript:void(0);" onclick="return false;">
                 <i class="fa fa-arrows-alt p-r-25 p-l-15" style="width: 20px; height: 20px;"></i>
-                <span class="p-r-15">移动到</span></a></li>
+                <span class="p-r-15">移动到</span></a></li> -->
             <li data-action="rename"><a href="javascript:void(0);" onclick="rename()">
                 <i class="fa fa-edit p-r-25 p-l-15" style="width: 20px; height: 20px;"></i>
                 <span class="p-r-15">重命名</span></a></li>
-            <li data-action="refresh"><a href="javascript:void(0);" onclick="return false;">
+            <li data-action="refresh"><a href="javascript:void(0);" onclick="refreshFolder()">
                 <i class="fa fa-refresh p-r-25 p-l-15" style="width: 20px; height: 20px;"></i>
                 <span class="p-r-15">刷新</span></a></li>
         </ul>
