@@ -40,46 +40,73 @@ function decrypt(str) {
  */
 function uploadFile() {
     // 显示上传信息窗口
-    let uploadDiv = $('#upload-window');
-    uploadDiv.removeClass('display-none');
+    //let uploadDiv = $('#upload-window');
+    //uploadDiv.removeClass('display-none');
 
     // 添加选择的文件信息
     addUploadItem();
 
-    let fileList = document.getElementById('fileInput').files;
-
-    // 计算文件md5
-
-    // 上传
-    // upload.upload(fileList[0]);
-    // console.log(upload.upload(fileList[0]));
-
-    /* 读取文件太大问题 */
     const files = document.getElementById('fileInput').files;
-    // 获取文件信息
+    const formData = new FormData();
+    const nowDir = $('#fileTable').attr('value'); // 获取路径
     for (let i = 0; i < files.length; i++) {
-        let fileName = files[i].name;      // 文件名
-        let fileSize = files[i].size;      // 文件大小 单位：B
-        let fileType = files[i].type;      // 文件类型 比如：application/pdf image/jpeg text/plain
-        let fileUploadTime = new Date();   // 上传时间 当前操作时间
-        // 读取文件内容
-        var reader = new FileReader();
-        reader.readAsArrayBuffer(files[i]);  // 二进制读取
-        reader.onload = function() {  // onload成功读取文件后调用
-            var data = this.result;        // 文件内容
-            $.ajax({
-                url:'/upload',
-                method: 'post',
-                data: {
-                    "fileName": fileName,
-                    "fileSize": fileSize,
-                    "fileType": fileType,
-                    "fileUploadTime": fileUploadTime,
-                    "data": data,
-                },
-            })
-        };
+        formData.append('file', files[i]);
+        formData.append('path', nowDir); // 添加路径信息
     }
+
+    $.ajax({
+        url: '/upload',
+        method: 'post',
+        data: formData,
+        processData: false, // 不要处理数据
+        contentType: false, // 不要设置Content-Type头
+        success: function (response) {
+            // 处理成功响应
+            console.log(response);
+            var nowDir = $('#fileTable').attr('value');
+            getFilesByDir(nowDir);
+        },
+        error: function (error) {
+            // 处理上传失败
+            console.error(error);
+        }
+    });
+
+
+    // let fileList = document.getElementById('fileInput').files;
+
+    // // 计算文件md5
+
+    // // 上传
+    // // upload.upload(fileList[0]);
+    // // console.log(upload.upload(fileList[0]));
+
+    // /* 读取文件太大问题 */
+    // const files = document.getElementById('fileInput').files;
+    // // 获取文件信息
+    // for (let i = 0; i < files.length; i++) {
+    //     let fileName = files[i].name;      // 文件名
+    //     let fileSize = files[i].size;      // 文件大小 单位：B
+    //     let fileType = files[i].type;      // 文件类型 比如：application/pdf image/jpeg text/plain
+    //     let fileUploadTime = new Date();   // 上传时间 当前操作时间
+    //     // 读取文件内容
+    //     var reader = new FileReader();
+    //     reader.readAsArrayBuffer(files[i]);  // 二进制读取
+    //     reader.onload = function() {  // onload成功读取文件后调用
+    //         var data = this.result;        // 文件内容
+    //         $.ajax({
+    //             url:'/upload',
+    //             method: 'post',
+    //             data: {
+    //                 "fileName": fileName,
+    //                 "fileSize": fileSize,
+    //                 "fileType": fileType,
+    //                 "fileUploadTime": fileUploadTime,
+    //                 "data": data,
+    //             },
+    //         })
+    //     };
+    // }
     
     // for (let i = 0; i < fileJSONArray.length; i++) {
     //     console.log(fileJSONArray[i].fileName, fileJSONArray[i].fileSize, fileJSONArray[i].fileType);
@@ -189,64 +216,9 @@ function getFilesByDir(curDir) {
                 showFileListUseTable(data);
             }
         });
-        //data的格式如下
-        // var data = {
-        //     "files": {
-        //         "file1": {
-        //             "fileName": 'testFile1',
-        //             "fileSize": '123456',
-        //             "fileType": 'image/png',
-        //             "fileDir": '/lihui/',
-        //             "fileUploadDate": '2019-7-5',
-        //         },
-        //         "file2": {
-        //             "fileName": 'testFile2',
-        //             "fileSize": '230403',
-        //             "fileType": 'application/pdf',
-        //             "fileDir": '/lihui/',
-        //             "fileUploadDate": '2019-7-6',
-        //         },
-        //         "file3": {
-        //             "fileName": 'testFile3',
-        //             "fileSize": '1998',
-        //             "fileType": 'woxiaxiede',
-        //             "fileDir": '/lihui/',
-        //             "fileUploadDate": '2019-7-7',
-        //         },
-        //         "file4": {
-        //             "fileName": 'testDir',
-        //             "fileSize": '99999',
-        //             "fileType": 'dir',
-        //             "fileDir": '/lihui/',
-        //             "fileUploadDate": '2019-7-8',
-        //         },
-        //     }
-        // };
-        // // console.log(data);
-        // showFileListUseTable(data);
     } else {
         return '路径错误';
     }
-}
-
-// 根据类型获取文件列表
-function getFilesByType(filetype) {
-    // 在按类型获得文件时,不显示 返回\上传\新建文件夹 功能
-    $('.function-item1').addClass('display-none');
-    $('.function-item2').addClass('display-none');
-
-    clearTable();
-
-    $.ajax({
-        url: '',  // 添加url后删除！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
-        data: {'fileType': filetype},
-        type: 'POST',
-        dataType: 'json',
-        success: function (data) {
-            data = JSON.parse(data);
-            showFileListUseTable(data);
-        }
-    });
 }
 
 // 对从服务器获得文件列表使用表格进行展示
@@ -522,18 +494,6 @@ function downloadFile() {
 function deleteFileOrFolder() {
     var deleteFileList = getCheckedFileInfo();
     console.log(deleteFileList);
-    
-    // // 服务器端删除
-    // $.ajax({
-    //     url: '/delete',
-    //     data: { delete : deleteFileList},
-    //     method: 'POST',
-    //     success: function (res) {
-    //         // 删除成功后刷新页面
-    //         var path = JSON.parse(res);
-    //         getFilesByDir(path);
-    //     }
-    // })
     for (var i = 0; i < deleteFileList.length; i++) {
         var filename = deleteFileList[i];
 
@@ -591,8 +551,8 @@ function getNextDir(folder) {
     getFilesByDir(checkbox.value);
 }
 
-function refreshFolder(folder) {
-    var checkbox = folder.previousSibling;
+function refreshFolder() {
+    var nowDir = $('#fileTable').attr('value');
     // console.log(checkbox.value);
-    getFilesByDir(checkbox.value);
+    getFilesByDir(nowDir);
 }

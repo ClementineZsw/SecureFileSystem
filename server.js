@@ -6,6 +6,11 @@ const multer = require('multer'); // For handling file uploads
 const port = 3000;
 // 引入body-parser模块，用来处理post请求参数
 const bodyParser = require('body-parser');
+const https = require('https');
+const options = {
+  key: fs.readFileSync('CA/myServer.pem'),
+  cert: fs.readFileSync('CA/myServer.crt'),
+};
 // 处理post请求参数
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json());
@@ -14,18 +19,33 @@ app.use(bodyParser.json());
 // Set up the middleware for handling file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Save uploaded files to the 'uploads' folder
+    // 动态获取上传路径
+    const folderPath = 'E:\\研1上\\网络攻防基础\\project1\\uploads';
+    const dynamicPath = path.join(folderPath);
+    
+    cb(null, dynamicPath);
   },
   filename: (req, file, cb) => {
-    cb(null, file.originalname);
+    const decodedFilename = decodeURIComponent(file.originalname); 
+    cb(null, decodedFilename);
   },
 });
-const upload = multer({ storage: storage });
+
+const fileFilter = (req, file, callback) => {
+  // 解决中文名乱码的问题 latin1 是一种编码格式
+  file.originalname = Buffer.from(file.originalname, "latin1").toString(
+      "utf8"
+  );
+  callback(null, true);
+};
+
+const upload = multer({ storage: storage , fileFilter: fileFilter});
 
 // 配置静态资源目录
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.listen(port, () => {
+const server = https.createServer(options, app);
+server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
@@ -34,15 +54,33 @@ app.use('/uploads', express.static('uploads'));
 
 // Define a route for file uploads
 app.post('/upload', upload.single('file'), (req, res) => {
-  res.send('File uploaded successfully!');
+  if (req.file) {
+
+    console.log(req.body.path);
+    console.log(req.file.path);
+    const uploadedFilePath = req.file.path; // 获取上传的文件临时路径
+
+
+    // 构建目标路径，假设你要将文件移动到 /uploads 目录下
+    const folderPath = 'E:\\研1上\\网络攻防基础\\project1\\uploads';
+    const targetDirectory = path.join(folderPath, req.body.path);
+    const targetFilePath = path.join(targetDirectory, req.file.originalname);
+
+
+    fs.rename(uploadedFilePath, targetFilePath, (err) => {
+      if (err) {
+        console.error('文件移动失败', err);
+        res.json({ message: '文件移动失败' });
+      } else {
+        console.log('文件移动成功');
+        res.json({ message: '文件上传成功' });
+      }
+    });
+  } else {
+    res.json({ message: '文件上传失败' });
+  }
 });
 
-// // Define a route for file downloads
-// app.post('/download/:filename', (req, res) => {
-//   const filename = req.params.filename;
-//   res.download(`uploads/${filename}`);
-// });
-// Define a route for file downloads as a POST request
 app.post('/download', (req, res) => {
   //console.log(req.body.filename);
   const filename = req.body.filename; // Assuming the filename is sent in the request body

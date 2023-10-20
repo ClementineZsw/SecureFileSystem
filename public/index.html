@@ -39,54 +39,6 @@
                             <span>全部文件</span>
                         </a>
                     </li>
-                    <li>
-                        <a onclick="getFilesByType('audio')">
-                            <i class="fa fa-music p-l-15"></i>
-                            <span>音频</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a onclick="getFilesByType('video')">
-                            <i class="fa fa-video-camera p-l-15"></i>
-                            <span>视频</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a onclick="getFilesByType('image')">
-                            <i class="fa fa-photo p-l-15"></i>
-                            <span>图片</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a onclick="getFilesByType('others')">
-                            <i class="fa fa-file p-l-15"></i>
-                            <span>其他文件</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a onclick="return false;">
-                            <i class="fa fa-upload"></i>
-                            <span>上传中</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a onclick="return false;">
-                            <i class="fa fa-download"></i>
-                            <span>下载中</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a onclick="return false;">
-                            <i class="fa fa-check"></i>
-                            <span>已完成</span>
-                        </a>
-                    </li>
-                    <li>
-                        <a onclick="return false;">
-                            <i class="fa fa-trash"></i>
-                            <span>回收站</span>
-                        </a>
-                    </li>
                 </ul>
             </div>
         </div>
@@ -107,19 +59,12 @@
                         <input id="fileInput" type="file" onchange="uploadFile()" multiple="multiple">
                         <span style="position: absolute; top: 7px; left: 10px;">选择文件</span>
                     </div>
-                    <div id="uploadFolderChoice">
-                        <input type="file" multiple="multiple" webkitdirectory="webkitdirectory">
-                        <span style="position: absolute; top: 47px; left: 3px;">选择文件夹</span>
-                    </div>
                 </div>
                 <div class="function-item3 display-none" id="function-item-wrapper">
                     <span class="border-right-solid p-r-10" onclick="deleteFileOrFolder()"><i
                             class="fa fa-trash p-l-10"></i>&nbsp;删除</span>
                     <span class="border-right-solid p-r-10" onclick="downloadFile()"><i
                             class="fa fa-cloud-download p-l-10"></i>&nbsp;下载</span>
-                    <span class="border-right-solid p-r-10" onclick="alert('移动')"><i
-                            class="fa fa-arrows-alt p-l-10"></i>&nbsp;移动</span>
-                    <span onclick="alert('复制')"><i class="fa fa-copy p-l-10"></i>&nbsp;复制</span>
                 </div>
                 <div class="search">
                     <input class="search-input p-l-10" placeholder="文件或文件夹搜索">
@@ -143,188 +88,7 @@
                     </thead>
                     <tbody id="fileTable">
 
-                    <tr class="contextmenu-able">
-                        <td class="col-0 border-bottom-solid">
-                            <input class="hover-pointer sub-checkbox" type="checkbox" value="/A/这是一个文件夹">
-                            <span class="dir-click-able" onclick="getNextDir(this)">
-                            <i class="fa fa-folder p-l-5"></i>&nbsp;这是一个文件夹</span>
-                        </td>
-                        <td class="col-1 border-bottom-solid">/lihui/</td>
-                        <td class="col-2 border-bottom-solid">----</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    <tr class="contextmenu-able">
-                        <td class="col-0 border-bottom-solid">
-                            <input class="hover-pointer sub-checkbox" type="checkbox" value="/A/B/1111">
-                            <span><i class="fa fa-file-pdf-o p-l-5"></i>&nbsp;1111</span>
-                        </td>
-                        <td class="col-1 border-bottom-solid">/lihui/</td>
-                        <td class="col-2 border-bottom-solid">2.5G</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    <!--
-                    <tr class="contextmenu-able">
-                        <td class="col-1 border-bottom-solid"><input class="hover-pointer" type="checkbox"><i
-                                class="fa fa-file-pdf-o p-l-5"></i>&nbsp;1111
-                        </td>
-                        <td class="col-2 border-bottom-solid">2.5G</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    <tr class="contextmenu-able">
-                        <td class="col-1 border-bottom-solid"><input class="hover-pointer" type="checkbox"><i
-                                class="fa fa-file-pdf-o p-l-5"></i>&nbsp;1111
-                        </td>
-                        <td class="col-2 border-bottom-solid">2.5G</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    <tr>
-                        <td class="col-1 border-bottom-solid"><input class="hover-pointer" type="checkbox"><i
-                                class="fa fa-file-pdf-o p-l-5"></i>&nbsp;1111
-                        </td>
-                        <td class="col-2 border-bottom-solid">2.5G</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    <tr>
-                        <td class="col-1 border-bottom-solid"><input class="hover-pointer" type="checkbox"><i
-                                class="fa fa-file-pdf-o p-l-5"></i>&nbsp;1111
-                        </td>
-                        <td class="col-2 border-bottom-solid">2.5G</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    <tr>
-                        <td class="col-1 border-bottom-solid"><input class="hover-pointer" type="checkbox"><i
-                                class="fa fa-file-pdf-o p-l-5"></i>&nbsp;1111
-                        </td>
-                        <td class="col-2 border-bottom-solid">2.5G</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    <tr>
-                        <td class="col-1 border-bottom-solid"><input class="hover-pointer" type="checkbox"><i
-                                class="fa fa-file-pdf-o p-l-5"></i>&nbsp;1111
-                        </td>
-                        <td class="col-2 border-bottom-solid">2.5G</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    <tr>
-                        <td class="col-1 border-bottom-solid"><input class="hover-pointer" type="checkbox"><i
-                                class="fa fa-file-pdf-o p-l-5"></i>&nbsp;1111
-                        </td>
-                        <td class="col-2 border-bottom-solid">2.5G</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    <tr>
-                        <td class="col-1 border-bottom-solid"><input class="hover-pointer" type="checkbox"><i
-                                class="fa fa-file-pdf-o p-l-5"></i>&nbsp;1111
-                        </td>
-                        <td class="col-2 border-bottom-solid">2.5G</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    <tr>
-                        <td class="col-1 border-bottom-solid"><input class="hover-pointer" type="checkbox"><i
-                                class="fa fa-file-pdf-o p-l-5"></i>&nbsp;1111
-                        </td>
-                        <td class="col-2 border-bottom-solid">2.5G</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    <tr>
-                        <td class="col-1 border-bottom-solid"><input class="hover-pointer" type="checkbox"><i
-                                class="fa fa-file-pdf-o p-l-5"></i>&nbsp;1111
-                        </td>
-                        <td class="col-2 border-bottom-solid">2.5G</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    <tr>
-                        <td class="col-1 border-bottom-solid"><input class="hover-pointer" type="checkbox"><i
-                                class="fa fa-file-pdf-o p-l-5"></i>&nbsp;1111
-                        </td>
-                        <td class="col-2 border-bottom-solid">2.5G</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    <tr>
-                        <td class="col-1 border-bottom-solid"><input class="hover-pointer" type="checkbox"><i
-                                class="fa fa-file-pdf-o p-l-5"></i>&nbsp;1111
-                        </td>
-                        <td class="col-2 border-bottom-solid">2.5G</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    <tr>
-                        <td class="col-1 border-bottom-solid"><input class="hover-pointer" type="checkbox"><i
-                                class="fa fa-file-pdf-o p-l-5"></i>&nbsp;1111
-                        </td>
-                        <td class="col-2 border-bottom-solid">2.5G</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    <tr>
-                        <td class="col-1 border-bottom-solid"><input class="hover-pointer" type="checkbox"><i
-                                class="fa fa-file-pdf-o p-l-5"></i>&nbsp;1111
-                        </td>
-                        <td class="col-2 border-bottom-solid">2.5G</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    <tr>
-                        <td class="col-1 border-bottom-solid"><input class="hover-pointer" type="checkbox"><i
-                                class="fa fa-file-pdf-o p-l-5"></i>&nbsp;1111
-                        </td>
-                        <td class="col-2 border-bottom-solid">2.5G</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    <tr>
-                        <td class="col-1 border-bottom-solid"><input class="hover-pointer" type="checkbox"><i
-                                class="fa fa-file-pdf-o p-l-5"></i>&nbsp;1111
-                        </td>
-                        <td class="col-2 border-bottom-solid">2.5G</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    <tr>
-                        <td class="col-1 border-bottom-solid"><input class="hover-pointer" type="checkbox"><i
-                                class="fa fa-file-pdf-o p-l-5"></i>&nbsp;1111
-                        </td>
-                        <td class="col-2 border-bottom-solid">2.5G</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    <tr>
-                        <td class="col-1 border-bottom-solid"><input class="hover-pointer" type="checkbox"><i
-                                class="fa fa-file-pdf-o p-l-5"></i>&nbsp;1111
-                        </td>
-                        <td class="col-2 border-bottom-solid">2.5G</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    <tr>
-                        <td class="col-1 border-bottom-solid"><input class="hover-pointer" type="checkbox"><i
-                                class="fa fa-file-pdf-o p-l-5"></i>&nbsp;1111
-                        </td>
-                        <td class="col-2 border-bottom-solid">2.5G</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    <tr>
-                        <td class="col-1 border-bottom-solid"><input class="hover-pointer" type="checkbox"><i
-                                class="fa fa-file-pdf-o p-l-5"></i>&nbsp;1111
-                        </td>
-                        <td class="col-2 border-bottom-solid">2.5G</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    <tr>
-                        <td class="col-1 border-bottom-solid"><input class="hover-pointer" type="checkbox"><i
-                                class="fa fa-file-pdf-o p-l-5"></i>&nbsp;1111
-                        </td>
-                        <td class="col-2 border-bottom-solid">2.5G</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    <tr>
-                        <td class="col-1 border-bottom-solid"><input class="hover-pointer" type="checkbox"><i
-                                class="fa fa-file-pdf-o p-l-5"></i>&nbsp;1111
-                        </td>
-                        <td class="col-2 border-bottom-solid">2.5G</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    <tr>
-                        <td class="col-1 border-bottom-solid"><input class="hover-pointer" type="checkbox"><i
-                                class="fa fa-file-pdf-o p-l-5"></i>&nbsp;1111
-                        </td>
-                        <td class="col-2 border-bottom-solid">2.5G</td>
-                        <td class="col-3 border-bottom-solid">2019-07-01</td>
-                    </tr>
-                    -->
+
                     </tbody>
                 </table>
             </div>
@@ -337,26 +101,20 @@
             <li data-action="download"><a href="javascript:void(0);" onclick="downloadFile()">
                 <i class="fa fa-cloud-download p-r-25 p-l-15" style="width: 20px; height: 20px;"></i>
                 <span class="p-r-15">下载</span></a></li>
-            <li data-action="copy"><a href="javascript:void(0);" onclick="return false;">
-                <i class="fa fa-copy p-r-25 p-l-15" style="width: 20px; height: 20px;"></i>
-                <span class="p-r-15">复制</span></a></li>
             <li data-action="delete"><a href="javascript:void(0);" onclick="deleteFileOrFolder()">
                 <i class="fa fa-trash p-r-25 p-l-15" style="width: 20px; height: 20px;"></i>
                 <span class="p-r-15">删除</span></a></li>
-            <li data-action="move"><a href="javascript:void(0);" onclick="return false;">
-                <i class="fa fa-arrows-alt p-r-25 p-l-15" style="width: 20px; height: 20px;"></i>
-                <span class="p-r-15">移动到</span></a></li>
             <li data-action="rename"><a href="javascript:void(0);" onclick="rename()">
                 <i class="fa fa-edit p-r-25 p-l-15" style="width: 20px; height: 20px;"></i>
                 <span class="p-r-15">重命名</span></a></li>
-            <li data-action="refresh"><a href="javascript:void(0);" onclick="return false;">
+            <li data-action="refresh"><a href="javascript:void(0);" onclick="refreshFolder()">
                 <i class="fa fa-refresh p-r-25 p-l-15" style="width: 20px; height: 20px;"></i>
                 <span class="p-r-15">刷新</span></a></li>
         </ul>
     </div>
 
     <!-- 上传提示 -->
-    <div class="upload-window display-none" id="upload-window">
+    <!-- <div class="upload-window display-none" id="upload-window">
         <div class="upload-title">
             <span class="p-l-5">上传</span>
             <div style="float:right;">
@@ -399,7 +157,7 @@
                 -->
             </ul>
         </div>
-    </div>
+    </div> -->
 </div>
 <script type="text/javascript" src="../JS/CryptoJS/rollups/md5.js"></script>
 <script type="text/javascript" src="../JS/home.js"></script>
