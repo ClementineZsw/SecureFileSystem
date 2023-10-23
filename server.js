@@ -11,6 +11,21 @@ const options = {
   key: fs.readFileSync('CA/myServer.pem'),
   cert: fs.readFileSync('CA/myServer.crt'),
 };
+
+
+var jwt = require("jsonwebtoken")
+// 创建服务器对象
+const mysql = require("mysql")
+const conn = mysql.createConnection({
+	host: "127.0.0.1",
+	user: "root",
+	password: "",
+    //此处是你添加的数据库名
+	database: "mySecureFileSystem",
+	multipleStatements: true,
+
+})
+
 // 处理post请求参数
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json());
@@ -222,3 +237,84 @@ app.post('/newFolder', (req, res) => {
       res.send(relativePath+"\\");
   });
 });
+
+
+app.post("/register", (req, res) => {
+	var userName = req.body.userName
+	var passWord = req.body.passWord
+	if (!userName || !passWord) {
+		res.send({
+			code: 0,
+			msg: "用户名与密码为必传参数...",
+		})
+		return
+	}
+	if (userName && passWord) {
+		const result = `SELECT * FROM user_account WHERE name = '${userName}'`
+		conn.query(result, [userName], (err, results) => {
+			if (err) throw err
+			if (results.length >= 1) {
+				//2、如果有相同用户名，则注册失败，用户名重复
+				res.send({ code: 0, msg: "注册失败，用户名重复" })
+			} else {
+				const sqlStr = "insert into user_account(name,password) values(?,?)"
+				conn.query(sqlStr, [userName, passWord], (err, results) => {
+					if (err) throw err
+					if (results.affectedRows === 1) {
+						res.send({ code: 1, msg: "注册成功" })
+					} else {
+						res.send({ code: 0, msg: "注册失败" })
+					}
+				})
+			}
+		})
+	}
+ 
+	console.log("接收", req.body)
+})
+
+
+app.post("/login", (req, res) => {
+	var userName = req.body.userName
+	var passWord = req.body.passWord
+	if (!userName || !passWord) {
+		res.send({
+			code: 0,
+			msg: "用户名与密码为必传参数...",
+		})
+		return
+	}
+	const sqlStr = "select * from user_account WHERE name=? AND password=?"
+	conn.query(sqlStr, [userName, passWord], (err, result) => {
+		if (err) throw err
+		if (result.length > 0) {
+			// 生成token
+      console.log(result[0].name)
+      console.log(result[0].password)
+			var token = jwt.sign(
+				{
+					identity: result[0].identity,
+					userName: result[0].userName,
+				},
+				"secret",
+				{ expiresIn: "1h" },
+			)
+			console.log(token)
+			res.send({ code: 1, msg: "登录成功", token: token })
+ 
+			// 如果没有登录成功，则返回登录失败
+		} else {
+			// 判断token
+			if (req.headers.authorization == undefined || req.headers.authorization == null) {
+				if (req.headers.authorization) {
+					var token = req.headers.authorization.split(" ")[1] // 获取token
+				}
+				jwt.verify(token, "secret", (err, decode) => {
+					if (err) {
+						res.send({ code: 0, msg: "登录失败" })
+					}
+				})
+			}
+		}
+	})
+})

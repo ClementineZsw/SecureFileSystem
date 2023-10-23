@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>注册页面</title>
+  <script src="../JS/jquery/jquery-3.2.1.min.js"></script>
+</head>
+<body>
+  <h1>用户注册</h1>
+  <form id="registrationForm">
+    <label for="userName">用户名:</label>
+    <input type="text" id="userName" name="userName" required>
+    <br>
+    <label for="passWord">密码:</label>
+    <input type="password" id="passWord" name="passWord" required>
+    <br>
+    <button type="submit">注册</button>
+  </form>
+  <div id="registrationResult"></div>
+
+  <script>
+    $(document).ready(function() {
+      $("#registrationForm").submit(function(event) {
+        event.preventDefault();
+        
+        // 获取输入的用户名和密码
+        var userName = $("#userName").val();
+        var passWord = $("#passWord").val();
+        
+        // 构建请求数据
+        var requestData = {
+          userName: userName,
+          passWord: passWord
+        };
+        
+        // 发送POST请求
+        $.ajax({
+          type: "POST",
+          url: "/register",
+          data: JSON.stringify(requestData), // 将数据转换为JSON格式
+          contentType: "application/json", // 设置请求头的Content-Type
+          success: function(data) {
+            // 处理响应
+            if (data.code === 1) {
+              $("#registrationResult").text("注册成功: " + data.msg);
+            } else {
+              $("#registrationResult").text("注册失败: " + data.msg);
+            }
+          },
+          error: function(error) {
+            console.error("注册请求失败:", error);
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
