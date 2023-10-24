@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>网盘-全部文件</title>
+    <link rel="stylesheet" type="text/css" href="../CSS/home.css"/>
+    <link rel="stylesheet" type="text/css" href="../font/font-awesome-4.7.0/css/font-awesome.min.css"/>
+    <script type="text/javascript" src="../JS/jquery/jquery-3.2.1.min.js"></script>
+</head>
+<body>
+<div class="frame-all">
+    <!-- 网页顶栏 -->
+    <div class="header-wrapper">
+        <div class="logo float-left">
+            <a href="#">
+                <img src="../images/logo.png" alt="xx网盘" style="width: 70px; height: 70px;"/>
+            </a>
+        </div>
+        <div class="slogan float-left">
+            <span class="slogan-text">xxNetDiskxxx</span>
+        </div>
+        <div class="user float-right">
+                <span class="avatar">
+                    <img src="../images/avatar-test.png" alt="xxx" style="width: 40px; height: 40px;"/>
+                </span>
+            <span class="user-name">xxx</span>
+        </div>
+    </div>
+
+    <!-- 网页主体 -->
+    <div class="main-wrapper">
+        <!-- 侧边栏 -->
+        <div class="slider-wrapper">
+            <div class="slider">
+                <ul class="slider-menu">
+                    <li>
+                        <a onclick="getFilesByDir('/');">
+                            <i class="fa fa-folder"></i>
+                            <span>全部文件</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 文件列表相关 -->
+        <div class="right-part-wrapper">
+            <div class="function-wrapper">
+                <div class="function-item1">
+                    <span onclick="goBackUpperDir()"><i class="fa fa-arrow-left p-l-10"></i>&nbsp;返回</span>
+                </div>
+                <div class="function-item2">
+                    <span class="border-right-solid p-r-10" id="uploadControl" onclick="controlUploadChoices()"
+                          tabindex="-1"><i class="fa fa-cloud-upload p-l-10"></i>&nbsp;上传</span>
+                    <span onclick="newFolder()"><i class="fa fa-plus p-l-10"></i>&nbsp;新建文件夹</span>
+                </div>
+                <div class="type-choose-wrapper display-none" id="typeChooseDiv">
+                    <div class="border-bottom-solid" id="uploadFileChoice">
+                        <input id="fileInput" type="file" onchange="uploadFile()" multiple="multiple">
+                        <span style="position: absolute; top: 7px; left: 10px;">选择文件</span>
+                    </div>
+                </div>
+                <div class="function-item3 display-none" id="function-item-wrapper">
+                    <span class="border-right-solid p-r-10" onclick="deleteFileOrFolder()"><i
+                            class="fa fa-trash p-l-10"></i>&nbsp;删除</span>
+                    <span class="border-right-solid p-r-10" onclick="downloadFile()"><i
+                            class="fa fa-cloud-download p-l-10"></i>&nbsp;下载</span>
+                </div>
+                <div class="search">
+                    <input class="search-input p-l-10" placeholder="文件或文件夹搜索">
+                    <span><i class="fa fa-search p-r-5"></i></span>
+                </div>
+            </div>
+            <div class="content-wrapper">
+                <table class="file-table m-l-15">
+                    <thead style="height: 40px;">
+                    <tr>
+                        <th class="col-0 border-bottom-dashed">
+                            <input class="hover-pointer" type="checkbox" id="main-checkbox"
+                                   onclick="mainCheckboxCtrl()">&nbsp;文件名
+                        </th>
+                        <th class="col-1 border-bottom-dashed">
+                            当前路径
+                        </th>
+                        <th class="col-2 border-bottom-dashed">文件大小</th>
+                        <th class="col-3 border-bottom-dashed">上传日期</th>
+                    </tr>
+                    </thead>
+                    <tbody id="fileTable">
+
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右键菜单 -->
+    <div class="context-menu display-none" id="context-menu-1">
+        <ul>
+            <li data-action="download"><a href="javascript:void(0);" onclick="downloadFile()">
+                <i class="fa fa-cloud-download p-r-25 p-l-15" style="width: 20px; height: 20px;"></i>
+                <span class="p-r-15">下载</span></a></li>
+            <li data-action="delete"><a href="javascript:void(0);" onclick="deleteFileOrFolder()">
+                <i class="fa fa-trash p-r-25 p-l-15" style="width: 20px; height: 20px;"></i>
+                <span class="p-r-15">删除</span></a></li>
+            <li data-action="rename"><a href="javascript:void(0);" onclick="rename()">
+                <i class="fa fa-edit p-r-25 p-l-15" style="width: 20px; height: 20px;"></i>
+                <span class="p-r-15">重命名</span></a></li>
+            <li data-action="refresh"><a href="javascript:void(0);" onclick="refreshFolder()">
+                <i class="fa fa-refresh p-r-25 p-l-15" style="width: 20px; height: 20px;"></i>
+                <span class="p-r-15">刷新</span></a></li>
+        </ul>
+    </div>
+
+    
+</div>
+<script type="text/javascript" src="../JS/CryptoJS/rollups/md5.js"></script>
+<script type="text/javascript" src="../JS/home.js"></script>
+<script type="text/javascript" src="../JS/uploadfile.js"></script>
+</body>
+</html>

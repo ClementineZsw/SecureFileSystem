@@ -1,57 +1,135 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+ 
 <head>
-  <title>注册页面</title>
-  <script src="../JS/jquery/jquery-3.2.1.min.js"></script>
+    <meta charset="UTF-8">
+    <title>注册页面</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../JS/crypto-js/crypto-js.js"></script>
+    <style>
+        html,body{
+            height: 100%;
+        }
+        body{
+            background: #006666;
+        }
+        h1{
+            color: #FFF;
+            text-align: center;
+        }
+        .container{
+            margin: 100px auto;
+            width: 30%;
+        }
+        form{
+            background: #FFF;
+            height: 300px;
+            width: 100%;
+            border-radius: 10px;
+            position: relative;
+        }
+        label{
+            color: #000;
+            font-weight: bold;
+            font-size: 20px;
+            margin-left: 40px;
+        }
+        input{
+            text-align: left;
+            margin: 10px;
+        }
+        .input{
+            width: 80%;
+            height: 35px;
+            margin-left: 40px;
+        }
+        .checkbox{
+            margin-left: 30px;
+        }
+        a{
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .submit{
+            display: inline-block;
+            margin-top: 0;
+            margin-left:145px;
+            background: #000;
+            border: none;
+            color: #FFF;
+            height: 35px;
+            width: 100px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 5px;
+        }
+        .left{
+            margin: 20px;
+        }
+        .right{
+            position: absolute;
+            right: 20px;
+        }
+    </style>
 </head>
+ 
 <body>
-  <h1>用户注册</h1>
-  <form id="registrationForm">
-    <label for="userName">用户名:</label>
-    <input type="text" id="userName" name="userName" required>
-    <br>
-    <label for="passWord">密码:</label>
-    <input type="password" id="passWord" name="passWord" required>
-    <br>
-    <button type="submit">注册</button>
-  </form>
-  <div id="registrationResult"></div>
-
-  <script>
-    $(document).ready(function() {
-      $("#registrationForm").submit(function(event) {
-        event.preventDefault();
-        
-        // 获取输入的用户名和密码
-        var userName = $("#userName").val();
-        var passWord = $("#passWord").val();
-        
-        // 构建请求数据
-        var requestData = {
-          userName: userName,
-          passWord: passWord
-        };
-        
-        // 发送POST请求
-        $.ajax({
-          type: "POST",
-          url: "/register",
-          data: JSON.stringify(requestData), // 将数据转换为JSON格式
-          contentType: "application/json", // 设置请求头的Content-Type
-          success: function(data) {
-            // 处理响应
-            if (data.code === 1) {
-              $("#registrationResult").text("注册成功: " + data.msg);
-            } else {
-              $("#registrationResult").text("注册失败: " + data.msg);
-            }
-          },
-          error: function(error) {
-            console.error("注册请求失败:", error);
-          }
+    <div class="container">
+        <h1>用户注册</h1>
+        <form id="registrationForm">
+            <br>
+            <label for="username">用户名</label><br>
+            <input type="text" name="username" id="username" class="input" value="" placeholder="用户名" required><br>
+            <label for="pwd">密码</label><br>
+            <input type="password" name="" id="pwd" class="input" value="" placeholder="密码" required>
+            <!-- <div class="checkbox">
+                <input type="checkbox" name="">
+                <span>记住密码</span>
+            </div> -->
+            <button type="submit" class="submit" >注册</button>
+            <br>
+            <!-- <a href="index.html" class="left">返回首页</a> -->
+            <a href="index.html" class="right">登录</a>
+        </form>
+    </div>
+    <script>
+        $(document).ready(function() {
+          $("#registrationForm").submit(function(event) {
+            event.preventDefault();
+            
+            // 获取输入的用户名和密码
+            var userName = $("#username").val();
+            var passWord = $("#pwd").val();
+            // 使用 SHA-256 哈希算法
+            const hash = CryptoJS.SHA256(passWord);
+            const hashString = hash.toString(CryptoJS.enc.Hex);
+            // 构建请求数据
+            var requestData = {
+              userName: userName,
+              passWord: hashString
+            };
+            
+            // 发送POST请求
+            $.ajax({
+              type: "POST",
+              url: "/register",
+              data: JSON.stringify(requestData), // 将数据转换为JSON格式
+              contentType: "application/json", // 设置请求头的Content-Type
+              success: function(data) {
+                // 处理响应
+                if (data.code === 1) {
+                  $("#registrationResult").text("注册成功: " + data.msg);
+                } else {
+                  $("#registrationResult").text("注册失败: " + data.msg);
+                }
+              },
+              error: function(error) {
+                console.error("注册请求失败:", error);
+              }
+            });
+          });
         });
-      });
-    });
-  </script>
+      </script>
 </body>
+ 
 </html>

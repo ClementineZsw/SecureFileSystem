@@ -53,18 +53,28 @@ function uploadFile() {
         formData.append('file', files[i]);
         formData.append('path', nowDir); // 添加路径信息
     }
-
+    // 获取令牌（可以从本地存储或会话存储中获取）
+    var token = localStorage.getItem("token"); // 从本地存储中获取令牌
     $.ajax({
         url: '/upload',
         method: 'post',
         data: formData,
+        headers: {
+            "Authorization": token // 将令牌作为 Authorization 请求头传递
+          },
         processData: false, // 不要处理数据
         contentType: false, // 不要设置Content-Type头
-        success: function (response) {
+        success: function (data) {
             // 处理成功响应
-            console.log(response);
-            var nowDir = $('#fileTable').attr('value');
-            getFilesByDir(nowDir);
+            if (data.code === 1) {
+                var nowDir = $('#fileTable').attr('value');
+                getFilesByDir(nowDir);
+            } else {
+                // 重定向到登录页面
+                console.log("redirect");
+                window.location.href = "/index.html";  // 替换成实际的登录页面 URL
+            }
+            
         },
         error: function (error) {
             // 处理上传失败
@@ -72,47 +82,6 @@ function uploadFile() {
         }
     });
 
-
-    // let fileList = document.getElementById('fileInput').files;
-
-    // // 计算文件md5
-
-    // // 上传
-    // // upload.upload(fileList[0]);
-    // // console.log(upload.upload(fileList[0]));
-
-    // /* 读取文件太大问题 */
-    // const files = document.getElementById('fileInput').files;
-    // // 获取文件信息
-    // for (let i = 0; i < files.length; i++) {
-    //     let fileName = files[i].name;      // 文件名
-    //     let fileSize = files[i].size;      // 文件大小 单位：B
-    //     let fileType = files[i].type;      // 文件类型 比如：application/pdf image/jpeg text/plain
-    //     let fileUploadTime = new Date();   // 上传时间 当前操作时间
-    //     // 读取文件内容
-    //     var reader = new FileReader();
-    //     reader.readAsArrayBuffer(files[i]);  // 二进制读取
-    //     reader.onload = function() {  // onload成功读取文件后调用
-    //         var data = this.result;        // 文件内容
-    //         $.ajax({
-    //             url:'/upload',
-    //             method: 'post',
-    //             data: {
-    //                 "fileName": fileName,
-    //                 "fileSize": fileSize,
-    //                 "fileType": fileType,
-    //                 "fileUploadTime": fileUploadTime,
-    //                 "data": data,
-    //             },
-    //         })
-    //     };
-    // }
-    
-    // for (let i = 0; i < fileJSONArray.length; i++) {
-    //     console.log(fileJSONArray[i].fileName, fileJSONArray[i].fileSize, fileJSONArray[i].fileType);
-    // }
-
-    // 重置input，解决：两次选择同一个文件，事件不会调用的问题
     document.getElementById('fileInput').value = '';
 }
 
@@ -205,15 +174,27 @@ function getFilesByDir(curDir) {
 
         //在前端保存当前目录
         $('#fileTable').attr('value', curDir);
-
+        // 获取令牌（可以从本地存储或会话存储中获取）
+        var token = localStorage.getItem("token"); // 从本地存储中获取令牌
         $.ajax({
-            url: '/show_file',  // 添加url后删除！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！！
+            url: '/show_file',  
             data: {'curDir': curDir},
             type: 'POST',
-            dataType: 'json',
+            headers: {
+                "Authorization": token // 将令牌作为 Authorization 请求头传递
+              },
             success: function (data) {
                 //data = JSON.parse(data);
-                showFileListUseTable(data);
+                 // 处理登录响应
+                if (data.code === 1) {
+                    showFileListUseTable(data);
+                    // 令牌不需要在这里存储，因为已经存储在本地存储中
+                } else {
+                    // 重定向到登录页面
+                    console.log("redirect");
+                    window.location.href = "/index.html"; // 替换成实际的登录页面 URL
+                }
+                    
             }
         });
     } else {
@@ -398,17 +379,26 @@ function goBackUpperDir() {
     //先获取当前路径
     // 获取 id 为 fileTable 的元素
     var nowDir = $('#fileTable').attr('value');
-
-    console.log(nowDir);
+    // 获取令牌（可以从本地存储或会话存储中获取）
+    var token = localStorage.getItem("token"); // 从本地存储中获取令牌
     $.ajax({
         url: '/goback',
         data: {'nowDir': nowDir},
         type: "POST",
-        success: function (res) {
-            console.log(res);
-            getFilesByDir(res);
+        headers: {
+            "Authorization": token // 将令牌作为 Authorization 请求头传递
+          },
+        success: function (data) {
+            if (data.code === 1) {
+                getFilesByDir(data.dir);
+            } else {
+                // 重定向到登录页面
+                console.log("redirect");
+                window.location.href = "/index.html"; // 替换成实际的登录页面 URL
+            }
         },
         fail: function (res) {
+            alert(res.error);
             console.log(res);
         }
     });
@@ -419,6 +409,8 @@ function goBackUpperDir() {
 function newFolder() {
     var nowDir = $('#fileTable').attr('value');
     var fileName = prompt("请输入文件夹名称", "新建文件夹");
+    // 获取令牌（可以从本地存储或会话存储中获取）
+    var token = localStorage.getItem("token"); // 从本地存储中获取令牌
     if (fileName != null && fileName.trim() !== '') {
         if (fileName.indexOf('/') !== -1) {
             alert('文件夹名称中不能包含/');
@@ -427,11 +419,18 @@ function newFolder() {
                 url: '/newFolder',
                 data: {"newFolder": fileName ,"nowDir":nowDir},
                 type: 'POST',
+                headers: {
+                    "Authorization": token // 将令牌作为 Authorization 请求头传递
+                  },
                 //dataType: 'json',
-                success: function (res) {
-                    // let path = JSON.parse(res);
-                    // getFilesByDir(path);
-                    getFilesByDir(res);
+                success: function (data) {
+                    if (data.code === 1) {
+                        getFilesByDir(data.dir);
+                    } else {
+                        // 重定向到登录页面
+                        console.log("redirect");
+                        window.location.href = "/index.html";  // 替换成实际的登录页面 URL
+                    }
                 }
             })
         }
@@ -444,31 +443,32 @@ function newFolder() {
 
 // 下载
 function downloadFile() {
-    // var downloadFileList = getCheckedFileInfo();
-    // $.ajax({
-    //     url: '',
-    //     data: downloadFileList,
-    //     type: 'POST',
-    //     success: function (res) {
-    //         console.log(res);
-    //     },
-    //     fail: function (res) {
-    //         console.log(res);
-    //     }
-    // })
+    function getFileNameFromPath(path) {
+        // 使用正则表达式匹配最后一个斜杠后面的部分
+        const match = path.match(/[^\\/]*$/);
+        if (match) {
+          return match[0];
+        }
+        return null; // 如果没有匹配到文件名
+    }
     var downloadFileList = getCheckedFileInfo();
 
     if (downloadFileList.length === 0) {
         alert("请先选择要下载的文件");
         return;
     }
-
+    // 获取令牌（可以从本地存储或会话存储中获取）
+    var token = localStorage.getItem("token"); // 从本地存储中获取令牌
     for (var i = 0; i < downloadFileList.length; i++) {
         var filename = downloadFileList[i];
-
+        var download_filename=getFileNameFromPath(filename);
+        console.log(download_filename);
         $.ajax({
             url: '/download',
             method: 'POST',
+            headers: {
+                "Authorization": token // 将令牌作为 Authorization 请求头传递
+              },
             data: { filename: filename }, // Include the filename in the request body
             success: function (data, status, xhr) {
               // 下载文件的URL
@@ -477,7 +477,7 @@ function downloadFile() {
               // 创建一个隐形的<a>元素，模拟点击下载
               var link = document.createElement('a');
               link.href = downloadUrl;
-              link.download = filename;
+              link.download = download_filename;
               link.style.display = 'none';
               document.body.appendChild(link);
               link.click();
@@ -493,7 +493,8 @@ function downloadFile() {
 // 删除
 function deleteFileOrFolder() {
     var deleteFileList = getCheckedFileInfo();
-    console.log(deleteFileList);
+    // 获取令牌（可以从本地存储或会话存储中获取）
+    var token = localStorage.getItem("token"); // 从本地存储中获取令牌
     for (var i = 0; i < deleteFileList.length; i++) {
         var filename = deleteFileList[i];
 
@@ -502,10 +503,17 @@ function deleteFileOrFolder() {
             url: '/delete',
             data: {"delete": filename},
             type: 'POST',
-            //dataType: 'json',
-            success: function (res) {
-                // 删除成功后刷新页面
-                getFilesByDir(res);
+            headers: {
+                "Authorization": token // 将令牌作为 Authorization 请求头传递
+              },
+            success: function (data) {
+                if (data.code === 1) {
+                    getFilesByDir(data.dir);
+                } else {
+                    // 重定向到登录页面
+                    console.log("redirect");
+                    window.location.href = "/index.html";  // 替换成实际的登录页面 URL
+                }
             }
         });
     }
@@ -519,6 +527,8 @@ function rename() {
         return;
     }
     var newFileName = prompt('请输入新的文件(夹)名字', '重命名名称');
+    // 获取令牌（可以从本地存储或会话存储中获取）
+    var token = localStorage.getItem("token"); // 从本地存储中获取令牌
     if (newFileName != null && newFileName.trim() !== '') {
         if (newFileName.indexOf('/') !== -1) {
             alert('文件(夹)名称中不能包含/');
@@ -530,10 +540,20 @@ function rename() {
                     $.ajax({
                         url: '/rename',
                         data: {"newFileName": newFileName, "file": file},
+                        headers: {
+                            "Authorization":  token // 将令牌作为 Authorization 请求头传递
+                          },
                         //dataType: 'json',
                         type: 'POST',
-                        success: function (res) {
-                            getFilesByDir(res);
+                        success: function (data) {
+                            
+                            if (data.code === 1) {
+                                getFilesByDir(data.dir);
+                            } else {
+                                // 重定向到登录页面
+                                console.log("redirect");
+                                window.location.href = "/index.html";  // 替换成实际的登录页面 URL
+                            }
                         }
                     })
                 }

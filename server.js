@@ -11,7 +11,7 @@ const options = {
   key: fs.readFileSync('CA/myServer.pem'),
   cert: fs.readFileSync('CA/myServer.crt'),
 };
-
+const folderPath = 'E:\\研1上\\网络攻防基础\\project1\\uploads';
 
 var jwt = require("jsonwebtoken")
 // 创建服务器对象
@@ -35,7 +35,6 @@ app.use(bodyParser.json());
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     // 动态获取上传路径
-    const folderPath = 'E:\\研1上\\网络攻防基础\\project1\\uploads';
     const dynamicPath = path.join(folderPath);
     
     cb(null, dynamicPath);
@@ -67,6 +66,63 @@ server.listen(port, () => {
 // Serve the uploaded files
 app.use('/uploads', express.static('uploads'));
 
+// 创建 token 类
+class Jwt {
+  constructor(data) {
+      this.data = data;
+
+  }
+
+  //生成token
+  generateToken() {
+      let data = this.data;
+      let created = Math.floor(Date.now() / 1000);
+      let cert = fs.readFileSync(path.join('E:\\研1上\\网络攻防基础\\project1\\CA\\tokenKey_private.pem'));//私钥 可以自己生成
+      let token = jwt.sign({
+          data,
+          exp: created + 60 * 30,
+      }, cert, {algorithm: 'RS256'});
+      return token;
+  }
+
+  // 校验token
+  verifyToken() {
+      let token = this.data;
+      let cert = fs.readFileSync(path.join('E:\\研1上\\网络攻防基础\\project1\\CA\\tokenKey_public.pem'));//公钥 可以自己生成
+      let res;
+      try {
+          let result = jwt.verify(token, cert, {algorithms: ['RS256']}) || {};
+          let {exp = 0} = result, current = Math.floor(Date.now() / 1000);
+          if (current <= exp) {
+              res = result.data || {};
+          }
+      } catch (e) {
+          res = 'err';
+      }
+      return res;
+  }
+}
+
+app.use(function (req, res, next) {
+  // 我这里知识把登陆和注册请求去掉了，其他的多有请求都需要进行token校验 
+  if (req.url != '/login' && req.url != '/register') {
+      let token = req.headers.authorization;
+      let jwt = new Jwt(token);
+      let result = jwt.verifyToken();
+      // 如果考验通过就next，否则就返回登陆信息不正确
+      if (result == 'err') {
+          res.send({code :0,msg:"登录已过期,请重新登录"});
+          console.log('登录已过期,请重新登录');
+          //res.send({status: 403, msg: '登录已过期,请重新登录'});
+          //res.render('login.html');
+      } else {
+          next();
+      }
+  } else {
+      next();
+  }
+});
+
 // Define a route for file uploads
 app.post('/upload', upload.single('file'), (req, res) => {
   if (req.file) {
@@ -77,165 +133,193 @@ app.post('/upload', upload.single('file'), (req, res) => {
 
 
     // 构建目标路径，假设你要将文件移动到 /uploads 目录下
-    const folderPath = 'E:\\研1上\\网络攻防基础\\project1\\uploads';
     const targetDirectory = path.join(folderPath, req.body.path);
     const targetFilePath = path.join(targetDirectory, req.file.originalname);
-
-
-    fs.rename(uploadedFilePath, targetFilePath, (err) => {
-      if (err) {
-        console.error('文件移动失败', err);
-        res.json({ message: '文件移动失败' });
-      } else {
-        console.log('文件移动成功');
-        res.json({ message: '文件上传成功' });
-      }
-    });
+    //校验是否允许访问目录
+    const relativePath = path.relative(folderPath, targetFilePath);
+    if (relativePath.startsWith('..')) {
+      res.status(403).send({ error: 'Access to parent directory is not allowed.' });
+    } 
+    else {
+      fs.rename(uploadedFilePath, targetFilePath, (err) => {
+        if (err) {
+          console.error('文件移动失败', err);
+          res.json({code:1, message: '文件移动失败' });
+        } else {
+          console.log('文件移动成功');
+          res.json({ code:1, message: '文件上传成功' });
+        }
+      });
+    }
   } else {
-    res.json({ message: '文件上传失败' });
+    res.json({code:1,  message: '文件上传失败' });
   }
 });
 
 app.post('/download', (req, res) => {
-  //console.log(req.body.filename);
   const filename = req.body.filename; // Assuming the filename is sent in the request body
-  //res.download(`uploads/${filename}`);
-  const folderPath = 'E:\\研1上\\网络攻防基础\\project1\\uploads';
-  res.download(path.join(folderPath, filename));
+  //校验是否允许访问目录
+  const Path= path.join(folderPath, filename);
+  const relativePath = path.relative(folderPath, Path);
+  console.log(Path)
+  console.log(relativePath)
+  if (relativePath.startsWith('..')) {
+    res.status(403).send({ error: 'Access to parent directory is not allowed.' });
+  } 
+  else {
+    res.download(path.join(folderPath, filename));
+  }
 });
 
 app.post('/show_file', (req, res) => {
   // 指定本地文件夹的路径
-  folderPath = 'E:\\研1上\\网络攻防基础\\project1\\uploads'; // 请替换成实际文件夹的路径
   //传入的path
   const curDir = req.body.curDir;
-  folderPath =path.join(folderPath, curDir);
-
-  // 读取文件夹中的文件列表
-  fs.readdir(folderPath, (err, files) => {
-    if (err) {
-      return res.status(500).json({ error: 'Unable to read folder contents.' });
-    }
-
-    const data = { files: {} };
-
-    // 循环处理每个文件
-    files.forEach((fileName) => {
-      //只挂载upload这一个文件夹
-      const filePath = path.join(folderPath, fileName);
-      const relativePath = path.relative("E:\\研1上\\网络攻防基础\\project1\\uploads", filePath);
-      filePath_user = path.join(relativePath);
-      const fileStats = fs.statSync(filePath);
-      
-      let fileType = 'file'; // 默认为文件类型
-      if (fileStats.isDirectory()) {
-          fileType = 'dir'; // 如果是文件夹则设置为文件夹类型
-          filePath_user += '\\'; // 如果是文件夹，添加斜杠
+  var Path =path.join(folderPath, curDir);
+  //校验是否允许访问目录
+  const relativePath = path.relative(folderPath, Path);
+  if (relativePath.startsWith('..')) {
+    res.status(403).send({ error: 'Access to parent directory is not allowed.' });
+  } 
+  else {
+    // 读取文件夹中的文件列表
+    fs.readdir(Path, (err, files) => {
+      if (err) {
+        return res.status(500).send({ error: 'Unable to read folder contents.' });
       }
 
-      data.files[fileName] = {
-        fileName: fileName,
-        fileSize: fileStats.size,
-        fileType: fileType, // 或者 'dir'，具体根据文件类型判断
-        fileDir: filePath_user,
-        fileUploadDate: fileStats.mtime.toISOString(),
-      };
-    });
+      const data = { code:1,files: {} };
 
-    res.json(data);
-  });
+      // 循环处理每个文件
+      files.forEach((fileName) => {
+        //只挂载upload这一个文件夹
+        const filePath = path.join(Path, fileName);//文件真实路径
+        const relativePath = path.relative(folderPath, filePath);//相对与挂载目录的路径
+        filePath_user = path.join(relativePath);
+        const fileStats = fs.statSync(filePath);
+        
+        let fileType = 'file'; // 默认为文件类型
+        if (fileStats.isDirectory()) {
+            fileType = 'dir'; // 如果是文件夹则设置为文件夹类型
+            filePath_user += '\\'; // 如果是文件夹，添加斜杠
+        }
+
+        data.files[fileName] = {
+          fileName: fileName,
+          fileSize: fileStats.size,
+          fileType: fileType, // 或者 'dir'，具体根据文件类型判断
+          fileDir: filePath_user,
+          fileUploadDate: fileStats.mtime.toISOString(),
+        };
+      });
+
+      res.send(data);
+    });
+  }
+
+
 });
 
 app.post('/goback', (req, res) => {
   //console.log(req.body.filename);
   const nowDir = req.body.nowDir; // Assuming the filename is sent in the request body
   //res.download(`uploads/${filename}`);
-  const folderPath = 'E:\\研1上\\网络攻防基础\\project1\\uploads';
   full_dir=path.join(folderPath, nowDir)
   const parentDir = path.dirname(full_dir); // 获取上级目录
   const relativePath = path.relative(folderPath, parentDir);
-  res.send(relativePath+"\\");
+
+  //校验是否允许访问目录
+  if (relativePath.startsWith('..')) {
+    res.status(403).send({error: 'Access to parent directory is not allowed.' });
+  } else {
+    res.send({code:1, dir:relativePath+"\\"});
+  }
+  
 });
 
 app.post('/delete', (req, res) => {
-  const deleteFileList = req.body.delete; // Assuming 'delete' is an array of file/folder names to be deleted
-  //console.log(deleteFileList);
-
-  folderPath = 'E:\\研1上\\网络攻防基础\\project1\\uploads'; // 请替换成实际文件夹的路径
-
+  const deleteFileList = req.body.delete; 
   
   const full_dir = path.join(folderPath, deleteFileList);
-  try {
-    fs.rmSync(full_dir, { recursive: true });
-  } catch (error) {
-    return res.status(500).json({ error: `Error deleting ${deleteFileList}` });
-  }
   const parentDir = path.dirname(full_dir); // 获取上级目录
   const relativePath = path.relative(folderPath, parentDir);
-  res.send(relativePath+"\\");
-  //res.status(200).json({ message: 'Files deleted successfully' });
+  //校验是否允许访问目录
+  if (relativePath.startsWith('..')) {
+    res.status(403).send({ error: 'Access to parent directory is not allowed.' });
+  } 
+  else {
+    //删除文件或文件夹
+    try {
+      fs.rmSync(full_dir, { recursive: true });
+    } catch (error) {
+      return res.status(500).send({ error: `Error deleting ${deleteFileList}` });
+    }
+    res.send({code:1, dir:relativePath+"\\"});
+  }
 });
 
 app.post('/rename', (req, res) => {
   const { newFileName, file } = req.body;
-
+  //先校验字符是否合法
   if (!newFileName || newFileName.trim() === '') {
-      return res.status(400).json({ error: 'New file name cannot be empty' });
+      return res.status(400).send({ error: 'New file name cannot be empty' });
   }
 
   if (newFileName.indexOf('/') !== -1) {
-      return res.status(400).json({ error: 'File name cannot contain "/"' });
+      return res.status(400).send({ error: 'File name cannot contain "/"' });
   }
 
-  folderPath = 'E:\\研1上\\网络攻防基础\\project1\\uploads';
-
-  // Construct the old and new file paths
   const oldFilePath = path.join(folderPath, file);
-  const newFilePath = path.join(folderPath, newFileName);
+  const parentDir = path.dirname(oldFilePath); // 获取上级目录
+  const newFilePath = path.join(parentDir, newFileName);
+  const relativePath = path.relative(folderPath, parentDir);
+  //校验是否允许访问目录
+  if (relativePath.startsWith('..')) {
+    res.status(403).send({ error: 'Access to parent directory is not allowed.' });
+  } 
+  else {
+    // 重命名文件或文件夹
+    fs.rename(oldFilePath, newFilePath, (err) => {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to rename the file' });
+        }
 
-  fs.rename(oldFilePath, newFilePath, (err) => {
-      if (err) {
-          return res.status(500).json({ error: 'Failed to rename the file' });
-      }
-
-      // Rename was successful, respond with the updated directory listing
-      const parentDir = path.dirname(newFilePath); // 获取上级目录
-      const relativePath = path.relative(folderPath, parentDir);
-      const files = relativePath+"\\"
-      console.log(files);
-      res.send(relativePath+"\\");
-  });
-  
+        // Rename was successful, respond with the updated directory listing
+        
+        res.send({code:1, dir:relativePath+"\\"});
+    });
+  }
 });
 
 app.post('/newFolder', (req, res) => {
   const { newFolder,nowDir } = req.body;
 
+  //校验新文件夹名称有没有非法字符
   if (!newFolder || newFolder.trim() === '') {
-      return res.status(400).json({ error: 'Folder name cannot be empty' });
+      return res.status(400).send({ error: 'Folder name cannot be empty' });
   }
 
   if (newFolder.indexOf('/') !== -1) {
-      return res.status(400).json({ error: 'Folder name cannot contain "/"' });
+      return res.status(400).send({ error: 'Folder name cannot contain "/"' });
   }
 
-  // Construct the path for the new folder
-  folderPath = 'E:\\研1上\\网络攻防基础\\project1\\uploads';
-
+  //校验是否允许访问目录
   const newFilePath = path.join(folderPath, nowDir, newFolder);
-
-  fs.mkdir(newFilePath, (err) => {
+  const parentDir = path.dirname(newFilePath); // 获取上级目录
+  const relativePath = path.relative(folderPath, parentDir);
+  if (relativePath.startsWith('..')) {
+    res.status(403).send({ error: 'Access to parent directory is not allowed.' });
+  } 
+  else {
+    fs.mkdir(newFilePath, (err) => {
       if (err) {
-          return res.status(500).json({ error: 'Failed to create the folder' });
+          return res.status(500).send({ error: 'Failed to create the folder' });
       }
 
       // Folder creation was successful, respond with the updated directory listing
-      const parentDir = path.dirname(newFilePath); // 获取上级目录
-      const relativePath = path.relative(folderPath, parentDir);
-      const files = relativePath+"\\"
-      console.log(files);
-      res.send(relativePath+"\\");
-  });
+      res.send({code:1, dir:relativePath+"\\"});
+    });
+  }
 });
 
 
@@ -270,7 +354,6 @@ app.post("/register", (req, res) => {
 		})
 	}
  
-	console.log("接收", req.body)
 })
 
 
@@ -291,17 +374,13 @@ app.post("/login", (req, res) => {
 			// 生成token
       console.log(result[0].name)
       console.log(result[0].password)
-			var token = jwt.sign(
-				{
-					identity: result[0].identity,
-					userName: result[0].userName,
-				},
-				"secret",
-				{ expiresIn: "1h" },
-			)
-			console.log(token)
+      let jwt = new Jwt({
+        identity: result[0].identity,
+        userName: result[0].userName,
+      });
+      let token = jwt.generateToken();
+			
 			res.send({ code: 1, msg: "登录成功", token: token })
- 
 			// 如果没有登录成功，则返回登录失败
 		} else {
 			// 判断token
