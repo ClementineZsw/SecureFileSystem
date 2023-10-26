@@ -397,8 +397,8 @@ function goBackUpperDir() {
                 window.location.href = "/index.html"; // 替换成实际的登录页面 URL
             }
         },
-        fail: function (res) {
-            alert(res.error);
+        error: function (res) {
+            alert("An error occurred.");
             console.log(res);
         }
     });
@@ -431,6 +431,10 @@ function newFolder() {
                         console.log("redirect");
                         window.location.href = "/index.html";  // 替换成实际的登录页面 URL
                     }
+                },
+                error: function (res) {
+                    alert("An error occurred.");
+                    console.log(res);
                 }
             })
         }
@@ -483,8 +487,9 @@ function downloadFile() {
               link.click();
               document.body.removeChild(link);
             },
-            error: function (xhr, status, error) {
-              console.log("下载失败: " + error);
+            error: function (res) {
+                alert("An error occurred.");
+                console.log(res);
             }
           });
     }
@@ -514,6 +519,10 @@ function deleteFileOrFolder() {
                     console.log("redirect");
                     window.location.href = "/index.html";  // 替换成实际的登录页面 URL
                 }
+            },
+            error: function (res) {
+                alert("An error occurred.");
+                console.log(res);
             }
         });
     }
@@ -554,6 +563,10 @@ function rename() {
                                 console.log("redirect");
                                 window.location.href = "/index.html";  // 替换成实际的登录页面 URL
                             }
+                        },
+                        error: function (res) {
+                            alert("An error occurred.");
+                            console.log(res);
                         }
                     })
                 }

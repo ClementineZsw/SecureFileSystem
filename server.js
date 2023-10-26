@@ -158,8 +158,17 @@ app.post('/upload', upload.single('file'), (req, res) => {
 
 app.post('/download', (req, res) => {
   const filename = req.body.filename; // Assuming the filename is sent in the request body
-  //校验是否允许访问目录
+  if (!filename){
+    res.status(400).send({error: 'parameter not given' });
+    return;
+  }
   const Path= path.join(folderPath, filename);
+  const fileStats = fs.statSync(Path);
+  //判断是否下载文件夹，不允许
+  if (fileStats.isDirectory()) {
+    res.status(403).send({ error: 'can not download dir.' });
+  }
+  //校验是否允许访问目录
   const relativePath = path.relative(folderPath, Path);
   console.log(Path)
   console.log(relativePath)
@@ -173,8 +182,12 @@ app.post('/download', (req, res) => {
 
 app.post('/show_file', (req, res) => {
   // 指定本地文件夹的路径
-  //传入的path
   const curDir = req.body.curDir;
+  //判断是否给了参数
+  if (!curDir){
+    res.status(400).send({error: 'parameter not given' });
+    return;
+  }
   var Path =path.join(folderPath, curDir);
   //校验是否允许访问目录
   const relativePath = path.relative(folderPath, Path);
@@ -223,7 +236,10 @@ app.post('/show_file', (req, res) => {
 app.post('/goback', (req, res) => {
   //console.log(req.body.filename);
   const nowDir = req.body.nowDir; // Assuming the filename is sent in the request body
-  //res.download(`uploads/${filename}`);
+  if (!nowDir){
+    res.status(400).send({error: 'parameter not given' });
+    return;
+  }
   full_dir=path.join(folderPath, nowDir)
   const parentDir = path.dirname(full_dir); // 获取上级目录
   const relativePath = path.relative(folderPath, parentDir);
@@ -239,7 +255,11 @@ app.post('/goback', (req, res) => {
 
 app.post('/delete', (req, res) => {
   const deleteFileList = req.body.delete; 
-  
+  //判断是否给了参数
+  if (!deleteFileList){
+    res.status(400).send({error: 'parameter not given' });
+    return;
+  }
   const full_dir = path.join(folderPath, deleteFileList);
   const parentDir = path.dirname(full_dir); // 获取上级目录
   const relativePath = path.relative(folderPath, parentDir);
@@ -260,6 +280,10 @@ app.post('/delete', (req, res) => {
 
 app.post('/rename', (req, res) => {
   const { newFileName, file } = req.body;
+  if (!newFileName || !file ){
+    res.status(400).send({error: 'parameter not given' });
+    return;
+  }
   //先校验字符是否合法
   if (!newFileName || newFileName.trim() === '') {
       return res.status(400).send({ error: 'New file name cannot be empty' });
@@ -293,7 +317,10 @@ app.post('/rename', (req, res) => {
 
 app.post('/newFolder', (req, res) => {
   const { newFolder,nowDir } = req.body;
-
+  if (!newFolder || !nowDir ){
+    res.status(400).send({error: 'parameter not given' });
+    return;
+  }
   //校验新文件夹名称有没有非法字符
   if (!newFolder || newFolder.trim() === '') {
       return res.status(400).send({ error: 'Folder name cannot be empty' });
